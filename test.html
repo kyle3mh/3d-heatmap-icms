@@ -1,0 +1,344 @@
+<head>
+    <style> body { margin: 0; } </style>
+  
+    <script src="//cdn.jsdelivr.net/npm/d3"></script>
+  
+    <script src="//cdn.jsdelivr.net/npm/globe.gl"></script>
+    <!--<script src="../../dist/globe.gl.js"></script>-->
+  </head>
+  
+  <body>
+    <select id="select">
+      <option value="1">Cost inflation</option>
+      <option value="2">Cost inflation outlook</option>
+      <option value="3">Skills shortage</option>
+      <option value="4">Market tendering conditions</option>
+      <option value="5">Contractor's margin</option>
+      <option value="6">Preliminaries</option>
+      <option value="7">Future market outlook</option>
+    </select>
+    <div id="globeViz"></div>
+    
+  
+    <script>
+      const colorScale = d3.scaleSequentialSqrt(d3.interpolateYlOrRd);
+  
+      // GDP per capita (avoiding countries with small pop)
+      const getVal = feat => feat.properties.GDP_MD_EST / Math.max(1e5, feat.properties.POP_EST);
+      const getData = feat => feat.CITIES;
+      var cool = feat => feat.properties.COST_INFLATION;
+      
+      // function changeLevel(){
+      //   var level;
+      //   if(document.getElementById("nivel").value == "1"){
+      //       level = feat => feat.properties.COST_INFLATION;
+      //   }
+      //   else{
+      //     if(document.getElementById("nivel").value == "2"){
+      //         level = feat => feat.properties.COST_INFLATION_OUTLOOK;
+      //         console.log(level);
+      //     } else {
+      //         level = 9;
+      //     }
+      //   }
+      //   return level;
+      // }
+      
+      // function myFunction() {
+      //   var cool = document.getElementById("mySelect").value;
+      //     // document.getElementById("demo").innerHTML = "You selected: " + x;
+      //     world.polygonLabel(cool);
+      // }
+      //var cool = feat => feat.properties.COST_INFLATION;
+      //var coolio = feat => feat.properties.COST_INFLATION_OUTLOOK;
+      
+      // var json = "cool";
+      // // Replace ./data.json with your JSON feed
+      // fetch('../datasets/uk.geojson')
+      //   .then(response => {
+      //     return response.json()
+      //   })
+      //   .then(data => {
+      //     // Work with JSON data here
+      //     console.log(hey);
+      //     var MyAircraftList = data.features.AircraftList;
+  
+      //   MyAircraftList.forEach(function(aircraft, i) {
+      //     for (var key in aircraft) {
+      //       console.log(i, key, aircraft[key]);
+      //     }
+      //   });
+      //     })
+      //   .catch(err => {
+      //     // Do something for an error here
+      //   })
+  //       var data = {"status":200,"status_message":"Valid Account","AircraftList":[{"ID":"1","FullTXT":"Boeing 777-200ER","TypeCode":"772","Manufacturer":"Boeing","Model":"777","Variant":"200ER","PaxCnt":"305","RangeNM":"5240","MinRwFT":"8000","Cost":"261500000","DeliveryDelay":"18"},{"ID":"2","FullTXT":"Airbus A320-200","TypeCode":"320","Manufacturer":"Airbus","Model":"A320","Variant":"200","PaxCnt":"186","RangeNM":"3300","MinRwFT":"2100","Cost":"98000000","DeliveryDelay":"9"}]}
+  
+  // var MyAircraftList = data.AircraftList;
+  
+  // MyAircraftList.forEach(function(aircraft, i) {
+  //   for (var key in aircraft) {
+  //      console.log(i, key, aircraft[key]);
+  //   }
+  // });
+  // var cool = "COST_INFLATION";
+  
+  
+      fetch('../datasets/uk.geojson').then(res => res.json()).then(countries =>
+      {
+        // console.log(feat.properties.GDP_MD_EST)
+        // console.log(countries.features[0].properties.CITIES[0])
+        // console.log(countries.features[0].AircraftList[0].FullTXT)
+        // for (features in countries) {
+        //     for (AircraftList in countries[features]) {
+        //       console.log(AircraftList[features]);
+        //     }
+        //   }
+        // var i, j
+        // for (i in countries.features) {
+        //   console.log(countries.features[i])
+        //   for (j in features.AircraftList) {
+        //     console.log(features.AircraftList[j])
+        //   }
+        // }
+        // for (i in countries.features) {
+        //   //console.log(countries.features[i])
+        //   for (j in countries.features[i].properties.CITIES) {
+        //     // console.log(countries.features[i].properties.CITIES[j].name)
+        //     var cool = countries.features[i].properties.CITIES[j].id
+        //     console.log(cool)
+        //   }
+        // }
+        // for(var i = 0; i < countries.features.properties; i++)
+        // {
+        //   console.log(countries.features.length)
+        //     var product = countries.features[i];
+        //     console.log(product)
+        //     for(var j = 0; j < product.length; j++)
+        //     {
+        //         var version = product[j];
+        //         console.log(version)
+        //     }
+        // }
+        // for (features in countries) {
+        //   for (AircraftList in countries[features]) {
+        //     for (ID in features[AircraftList]) {
+        //       console.log(countries[features][AircraftList[ID]]);
+          
+        //     }
+        //     // console.log([AircraftList]);
+        
+        //   }
+        // }
+        // for (item in dictionary) {
+        //   for (subItem in dictionary[item]) {
+        //     console.log(dictionary[item][subItem]);
+        //   }
+        // }
+     
+        // var MyAircraftList = countries.AircraftList;
+  
+        // MyAircraftList.forEach(function(aircraft, i) {
+        //   for (var key in aircraft) {
+        //     console.log(i, key, aircraft[key]);
+        //   }
+        // });
+       
+        // for (i in properties.cars) {
+        //   x += "<h2>" + myObj.cars[i].name + "</h2>";
+        //   for (j in myObj.cars[i].models) {
+        //     x += myObj.cars[i].models[j] + "<br>";
+        //   }
+        // }
+        // var i, x = "kkw";
+        // for (i = 0; i < countries.features; i++) {
+        //     x += countries.features + "<br>";
+        //   }
+        //   // console.log(countries.features.properties);
+        // countries.features.properties.forEach(CITIES => {
+        //     console.log(id);
+        // });
+         
+        // for (const art of r.articles) {
+        //     // ... do something with `art`
+        // }
+        const maxVal = Math.max(...countries.features.map(getVal));
+        //const hi = countries.features.map(features.properties.CITIES); 
+        //console.log(maxVal);
+        colorScale.domain([0, maxVal]);
+       
+        // var test = 1;
+        // if (test === 1) {
+        //   var cost = properties.COST_INFLATION;
+        // }
+        // for(var i = 0; i < countries.features.length; i++) {
+        //     var obj = countries[i];
+  
+        //     console.log(obj);
+        // }
+        // console.log(countries.CITIES);
+          // for (var i = 0; i < json.length; i++) {
+          //   productUrlArr.push(json[i].url);
+          // }
+  
+          // for (i in countries.features) {
+          //   //console.log(countries.features[i])
+          //   for (j in countries.features[i].properties.CITIES) {
+          //     // console.log(countries.features[i].properties.CITIES[j].name)
+          //     var cool = countries.features[i].properties.CITIES[j].name
+          //     console.log(cool)
+          //   }
+          // }
+          // var obj = workouts[i].exercises;
+          // obj.forEach(function(exercise) {
+          //     alert(exercise.name);
+          // });
+  
+  
+          var hey = d => d.properties.CITIES[i].name;
+          // var boo = d => d.properties.CITIES[i].cost_inflation;
+         
+          // for (var j = 0; j < countries.features.length; j++) {
+            
+          // }
+          // for (features in countries) {
+          //   for (properties in countries[features]) {
+          //     console.log(countries[features][properties]);
+          //   }
+          // }
+          // for(let i = 0, l = countries.features.properties.CITIES; i < l; i++) {
+          //     // `i` will take on the values `0`, `1`, `2`,..., i.e. in each iteration
+          //     // we can access the next element in the array with `data.items[i]`, example:
+          //     // 
+          //     // var obj = data.items[i];
+          //     // 
+          //     // Since each element is an object (in our example),
+          //     // we can now access the objects properties with `obj.id` and `obj.name`. 
+          //     // We could also use `data.items[i].id`.
+          // }
+          // for (let key in ountries.features.properties) {
+          //   let value = countries.properties[key];
+          //   console.log(key);
+          //   for (i = 0; i <= value.length; i++) {
+          //     console.log(value[i]);
+          //   }
+          // }
+          // console.log(countries.features[i])
+        //console.log(data[i])  
+          console.log(cool)
+        // var pivot = COST_INFLATION;
+        // console.log(productUrlArr);
+          console.log(cool);
+        var world = Globe()
+          
+          .globeImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg')
+          .backgroundImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/night-sky.png')
+          .polygonsData(countries.features)
+          .polygonAltitude(0.02)
+          .polygonCapColor(feat => colorScale(getVal(feat)))
+          .polygonSideColor(() => 'rgba(0, 100, 0, 0.15)')
+          .polygonStrokeColor(() => '#FFF')
+          // .polygonLabel(({ properties: d }) => `
+          //   <b>${d.ADMIN}</b> <br />
+          //   ${cool}
+          // `)
+          // .polygonLabel(`
+       
+          //   Population: <i>${cool}</i><br/>
+           
+          // `)
+          .polygonLabel(function changeLevel({ properties: d }){
+            var pivot;
+            var select = document.getElementById("select").value;
+            // console.log(select);
+   
+  
+            switch (select)     // Passing the variable to switch condition
+            {
+                case "1":
+                    pivot = d.COST_INFLATION;
+                    return pivot;
+  
+                case "2":
+                    pivot = d.COST_INFLATION_OUTLOOK;
+                    return pivot;
+  
+                case "3":
+                    pivot = d.SKILLS_SHORTAGE;
+                    return pivot;
+  
+                case "4":
+                    pivot = d.MARKET_TENDERING;
+                    return pivot;
+  
+                case "5":
+                    pivot = d.CONTRACTORS_MARGIN;
+                    return pivot;
+  
+                case "6":
+                    pivot = d.PRELIMINARIES;
+                    return pivot;
+  
+                case "7":
+                    pivot = d.FUTURE_MARKET_OUTLOOK;
+                    return pivot;
+  
+                default:
+                    pivot = d.COST_INFLATION;
+                    return pivot;
+            }
+  
+            // if (select == "1") {
+            //     pivot = d.COST_INFLATION;
+            // }
+            // if (select == "1") {
+            //     pivot = d.COST_INFLATION;
+            // }
+            // if (select == "1") {
+            //     pivot = d.COST_INFLATION;
+            // }
+            // if (select == "1") {
+            //     pivot = d.COST_INFLATION;
+            // }
+            // if (select == "1") {
+            //     pivot = d.COST_INFLATION;
+            // }
+            // if (select == "1") {
+            //     pivot = d.COST_INFLATION;
+            // }
+            // else {
+            //   if (select == "2") {
+            //       pivot = d.COST_INFLATION_OUTLOOK;
+                  
+            //   } else {
+            //       pivot = d.SKILLS_SHORTAGE;
+            //   }
+            // }
+            // console.log(countries.features[0].properties.CITIES[0])
+            //return pivot;
+          })
+          //.polygonLabel({ countries: countries.data.map(CITIES => id) })
+          //this.setState({items:json.data.map(child => child)});
+          // Auto-rotate
+        
+          .onPolygonHover(hoverD => world
+            .polygonAltitude(d => d === hoverD ? 0.04 : 0.02)
+            .polygonCapColor(d => d === hoverD ? 'steelblue' : colorScale(getVal(d))),
+            
+          )
+          .polygonsTransitionDuration(300)
+       
+          
+        (document.getElementById('globeViz'))
+          world.controls().autoRotate = true;
+          world.controls().autoRotateSpeed = 0.02;
+          world.controls().enableZoom = false;
+          world.controls().maxZoom = 0.3;
+          world.controls().zoomSpeed = 0.3;
+          world.pointOfView({ lat: 51.5074, lng: -0.1278, altitude: 2 }); // aim at continental US centroid
+     
+          
+      });
+      
+    </script>
+  </body>

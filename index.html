@@ -1,0 +1,117 @@
+<head>
+  <style> body { margin: 0; } </style>
+
+  <script src="//cdn.jsdelivr.net/npm/d3"></script>
+
+  <script src="//cdn.jsdelivr.net/npm/globe.gl"></script>
+  <!--<script src="../../dist/globe.gl.js"></script>-->
+</head>
+
+<body>
+  <select id="select">
+    <option value="1">Cost inflation</option>
+    <option value="2">Cost inflation outlook</option>
+    <option value="3">Skills shortage</option>
+    <option value="4">Market tendering conditions</option>
+    <option value="5">Contractor's margin</option>
+    <option value="6">Preliminaries</option>
+    <option value="7">Future market outlook</option>
+  </select>
+  <div id="globeViz"></div>
+  
+
+  <script>
+    const colorScale = d3.scaleSequentialSqrt(d3.interpolateYlOrRd);
+
+    // GDP per capita (avoiding countries with small pop)
+    const getVal = feat => feat.properties.GDP_MD_EST / Math.max(1e5, feat.properties.POP_EST);
+    const getData = feat => feat.CITIES;
+    var cool = feat => feat.properties.COST_INFLATION;
+    
+
+    fetch('uk.geojson').then(res => res.json()).then(countries =>
+    {
+      
+      const maxVal = Math.max(...countries.features.map(getVal));
+      colorScale.domain([0, maxVal]);
+     
+      var world = Globe()
+        
+        .globeImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg')
+        .backgroundImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/night-sky.png')
+        .polygonsData(countries.features)
+        .polygonAltitude(0.02)
+        .polygonCapColor(feat => colorScale(getVal(feat)))
+        .polygonSideColor(() => 'rgba(0, 100, 0, 0.15)')
+        .polygonStrokeColor(() => '#FFF')
+        // .polygonLabel(({ properties: d }) => `
+        //   <b>${d.ADMIN}</b> <br />
+        //   ${cool}
+        // `)
+        // .polygonLabel(`
+     
+        //   Population: <i>${cool}</i><br/>
+         
+        // `)
+        .polygonLabel(function changeLevel({ properties: d }){
+          var pivot;
+          var select = document.getElementById("select").value;
+      
+          switch (select)   
+          {
+              case "1":
+                  pivot = d.COST_INFLATION;
+                  return pivot;
+
+              case "2":
+                  pivot = d.COST_INFLATION_OUTLOOK;
+                  return pivot;
+
+              case "3":
+                  pivot = d.SKILLS_SHORTAGE;
+                  return pivot;
+
+              case "4":
+                  pivot = d.MARKET_TENDERING;
+                  return pivot;
+
+              case "5":
+                  pivot = d.CONTRACTORS_MARGIN;
+                  return pivot;
+
+              case "6":
+                  pivot = d.PRELIMINARIES;
+                  return pivot;
+
+              case "7":
+                  pivot = d.FUTURE_MARKET_OUTLOOK;
+                  return pivot;
+
+              default:
+                  pivot = d.COST_INFLATION;
+                  return pivot;
+          }
+
+ 
+        })
+        .onPolygonHover(hoverD => world
+          .polygonAltitude(d => d === hoverD ? 0.04 : 0.02)
+          .polygonCapColor(d => d === hoverD ? 'steelblue' : colorScale(getVal(d))),
+          
+        )
+        .polygonsTransitionDuration(300)
+     
+        
+      (document.getElementById('globeViz'))
+        world.controls().autoRotate = true;
+        world.controls().autoRotateSpeed = 0.02;
+        world.controls().enableZoom = false;
+        world.controls().maxZoom = 0.3;
+        world.controls().zoomSpeed = 0.3;
+        world.pointOfView({ lat: 51.5074, lng: -0.1278, altitude: 2 }); // aim at continental US centroid
+   
+        
+    });
+    
+  </script>
+</body>
